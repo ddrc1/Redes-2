@@ -60,5 +60,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
         if data == "\close":
             s.close()
+            break
         # cm = ChatMessage(data)
         # s.sendall(cm.get_bytes())
