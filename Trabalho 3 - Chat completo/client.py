@@ -4,6 +4,8 @@ import protocol
 
 from protocol import *
 
+from chat_client import ChatClient
+
 HOST = 'localhost'
 PORT = 4006
 
@@ -27,11 +29,17 @@ def handle_connection(socket):
             msg = socket.recv(length - protocol.PROTOCOL_HEADER_LENGTH)
             nm = protocol.NicknameMessage(str(msg, 'utf8'))
             nick = nm.nickname
+
         elif type == protocol.CHAT_MESSAGE_TYPE:
-            
             msg = socket.recv(length - protocol.PROTOCOL_HEADER_LENGTH)
             cm = protocol.ChatMessage(str(msg, 'utf8'))
-            print(f'{nick} {cm.msg}')
+            print(f'{nick}: {cm.msg}')
+
+        elif type == protocol.CLIENT_CLOSE_CONN_TYPE:
+            msg = socket.recv(length - protocol.PROTOCOL_HEADER_LENGTH)
+            dc = protocol.CloseMessage(nick)
+            print(f'{nick} disconnected')
+            # socket.close()
 
         else:
             pass
@@ -49,5 +57,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
         m = protocol.getMessageClass(data)
         s.sendall(m.get_bytes())
+
+        if data == "\close":
+            s.close()
         # cm = ChatMessage(data)
         # s.sendall(cm.get_bytes())

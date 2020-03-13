@@ -21,5 +21,11 @@ class ChatClient(Subject, threading.Thread):
     def run(self):
         while True:
             data = self.conn.recv(1024)
-            print(str(data, 'utf8'))
-            self.notify(self.addr, data)
+            if "\close".encode("utf8") in data:
+                nick = data.lstrip("\close")
+                self.notify(self.addr, f"{nick} disconnected".encode("utf8"))
+                self.conn.close()
+                break
+            else:
+                print(str(data, 'utf8'))
+                self.notify(self.addr, data)
